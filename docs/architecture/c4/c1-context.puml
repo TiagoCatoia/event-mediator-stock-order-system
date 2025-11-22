@@ -1,0 +1,14 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+SHOW_PERSON_OUTLINE()
+
+Person(usuario, "Operador", "Registra pedidos e controla estoque.")
+Person(admin, "Administrador", "Gerencia configurações e supervisiona o sistema.")
+
+System(sistema, "Sistema de Pedidos e Controle de Estoque", 
+       "Aplicação acadêmica para registrar pedidos, controlar estoque e rastrear o fluxo.")
+
+Rel(usuario, sistema, "Utiliza para registrar e acompanhar pedidos.")
+Rel(admin, sistema, "Administra e supervisiona o sistema.")
+
+@enduml
