@@ -1,0 +1,16 @@
+# ADR 01.  Adoção de Arquitetura Baseada em Eventos com Mediador Interno
+
+```
+Status: Aceita
+```
+
+## Contexto:
+O projeto consiste em um Sistema de Pedidos e Controle de Estoque desenvolvido como aplicação acadêmica. Ele exige modularidade entre as partes responsáveis por Pedidos, Estoque e Rastreamento, além da capacidade de reagir a eventos internos como criação de pedido, baixa de estoque e atualização de status. Também é necessário oferecer suporte a processamento assíncrono e desacoplado, garantir robustez e tolerância a falhas internas e possibilitar monitoramento completo do fluxo da aplicação por meio de observabilidade. Dado esse cenário, o sistema deve permitir evolução simples, separação clara de responsabilidades e facilidade para estender funcionalidades conforme o projeto cresce.
+## Decisão: 
+A decisão é adotar uma Arquitetura Baseada em Eventos (Event-Driven Architecture) utilizando um mediador interno fornecido pelo Spring por meio de Application Events e Domain Events. O projeto também utilizará Circuit Breaking com Resilience4j para garantir proteção contra falhas em componentes internos que executam tarefas potencialmente demoradas, além de Observabilidade com Micrometer e OpenTelemetry para coleta de métricas, logs estruturados e tracing distribuído.
+## Consequências: 
+Os principais benefícios dessa decisão incluem o baixo acoplamento entre os módulos de domínio, comunicação simples baseada na publicação e assinatura de eventos, maior organização interna para um projeto acadêmico que simula cenários reais, rastreabilidade e depuração facilitadas devido à observabilidade e a possibilidade de evolução incremental do sistema. Por outro lado, existem desafios, como a curva de aprendizado maior em comparação com uma arquitetura totalmente síncrona, o fato de que a execução assíncrona pode gerar fluxos menos previsíveis caso o tracing não seja bem implementado e a necessidade de maior cuidado na gestão dos eventos, especialmente no que diz respeito à consistência e idempotência.
+## Conformidade: 
+Para garantir alinhamento com essa decisão arquitetural, toda comunicação interna entre módulos deve ocorrer preferencialmente usando Domain Events em conjunto com ApplicationEventPublisher, evitando-se chamadas diretas entre os serviços de Pedidos, Estoque e Rastreamento. Além disso, qualquer operação mais lenta ou sujeita a falhas deve ser protegida com Resilience4j, e a observabilidade deve ser implementada com Micrometer e OpenTelemetry, assegurando logs e métricas padronizadas. Revisões de código periódicas devem confirmar que o projeto permanece aderente a essas diretrizes.
+## Notas:
+ADRs futuros poderão detalhar os eventos específicos utilizados no sistema. Entre os ADRs relacionados estão: ADR 002, que tratará da definição dos Domain Events; ADR 003, que abordará o padrão de observabilidade; ADR 004, que especificará o uso de Resilience4j; e ADR 005, relacionado à organização dos Bounded Contexts.
