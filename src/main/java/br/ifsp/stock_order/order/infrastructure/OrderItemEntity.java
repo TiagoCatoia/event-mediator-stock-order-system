@@ -1,21 +1,19 @@
 package br.ifsp.stock_order.order.infrastructure;
 
 import br.ifsp.stock_order.order.domain.OrderStatus;
+import br.ifsp.stock_order.product.infrastructure.ProductEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderEntity {
+public class OrderItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
@@ -27,9 +25,11 @@ public class OrderEntity {
     @Column(nullable = false)
     private Double totalPrice;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    private ProductEntity product;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItemEntity> orderItems = new ArrayList<>();
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    private OrderEntity order;
 }

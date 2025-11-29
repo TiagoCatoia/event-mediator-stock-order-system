@@ -1,11 +1,14 @@
 package br.ifsp.stock_order.product.infrastructure;
 
+import br.ifsp.stock_order.order.infrastructure.OrderItemEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,4 +32,7 @@ public class ProductEntity {
 
     @OneToOne(mappedBy = "product")
     private StockEntity stock;
+
+    @OneToMany(mappedBy = "product")
+    private List<OrderItemEntity> orderItem = new ArrayList<>();
 }

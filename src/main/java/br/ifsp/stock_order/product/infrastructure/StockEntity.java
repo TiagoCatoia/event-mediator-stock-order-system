@@ -23,7 +23,7 @@ public class StockEntity {
 
     private LocalDate updatedAt;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false, unique = true)
     private ProductEntity product;
 }
