@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -17,9 +18,15 @@ public class ProductEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)
     private Double price;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "product")
+    private StockEntity stock;
 }
