@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"order_id", "product_id"})
+)
 @Entity
 @Data
 @AllArgsConstructor
@@ -26,10 +29,10 @@ public class OrderItemEntity {
     private Double totalPrice;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @JoinColumn(name = "order_id", nullable = false)
     private OrderEntity order;
 }
