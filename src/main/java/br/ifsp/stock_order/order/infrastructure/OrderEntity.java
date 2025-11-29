@@ -1,5 +1,6 @@
 package br.ifsp.stock_order.order.infrastructure;
 
+import br.ifsp.stock_order.customer.infrastructure.CustomerEntity;
 import br.ifsp.stock_order.order.domain.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class OrderEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
 
@@ -32,4 +34,8 @@ public class OrderEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> orderItems = new ArrayList<>();
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private CustomerEntity customer;
 }
