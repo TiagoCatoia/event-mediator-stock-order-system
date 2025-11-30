@@ -1,5 +1,6 @@
 package br.ifsp.stock_order.customer.application;
 
+import br.ifsp.stock_order.customer.api.dto.CreateCustomerRequest;
 import br.ifsp.stock_order.customer.api.dto.CustomerResponse;
 import br.ifsp.stock_order.customer.infrastructure.CustomerEntity;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
@@ -17,11 +18,24 @@ public class CustomerService {
 
     public List<CustomerResponse> findCustomers() {
         List<CustomerEntity> customers = customerRepository.findAll();
+
         return customers.stream().map(c ->
                 new CustomerResponse(
                         c.getId(),
                         c.getName(),
                         c.getEmail()
                 )).toList();
+    }
+
+    public CustomerResponse createCustomer(CreateCustomerRequest request) {
+        CustomerEntity customer = new CustomerEntity(request.name(), request.email());
+
+        customerRepository.save(customer);
+
+        return new CustomerResponse(
+                customer.getId(),
+                customer.getName(),
+                customer.getEmail()
+        );
     }
 }

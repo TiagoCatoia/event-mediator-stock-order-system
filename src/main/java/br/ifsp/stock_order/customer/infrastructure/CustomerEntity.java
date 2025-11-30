@@ -28,4 +28,9 @@ public class CustomerEntity {
 
     @OneToMany(mappedBy = "customer")
     private List<OrderEntity> order = new ArrayList<>();
+
+    public CustomerEntity(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
 }
