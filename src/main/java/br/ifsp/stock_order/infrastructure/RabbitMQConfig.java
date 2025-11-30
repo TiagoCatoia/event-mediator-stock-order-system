@@ -13,6 +13,8 @@ public class RabbitMQConfig {
     //filas
     public static final String QUEUE_ORDER_CREATED = "q.order-created";
     public static final String QUEUE_STOCK_RESERVE = "q.stock-reserve";
+    public static final String QUEUE_ORDER_CANCEL = "q.order-cancel";
+    public static final String QUEUE_STOCK_FAILED = "q.stock-failed";
 
     //exchange
     public static final String EXCHANGE_ORDER = "ex.order";
@@ -20,6 +22,8 @@ public class RabbitMQConfig {
     //routing keys
     public static final String RK_ORDER_CREATED = "order.created";
     public static final String RK_STOCK_RESERVE = "stock.reserve";
+    public static final String RK_STOCK_FAILED = "stock.failed";
+    public static final String RK_ORDER_CANCEL = "order.cancel";
 
 
     @Bean
@@ -30,6 +34,16 @@ public class RabbitMQConfig {
     @Bean
     public Queue queueStockReserve() {
         return new Queue(QUEUE_STOCK_RESERVE, true);
+    }
+
+    @Bean
+    public Queue queueOrderCancel() {
+        return new Queue(QUEUE_ORDER_CANCEL, true);
+    }
+
+    @Bean
+    public Queue queueStockFailed() {
+        return new Queue(QUEUE_STOCK_FAILED, true);
     }
 
 
@@ -51,6 +65,18 @@ public class RabbitMQConfig {
     public Binding bindingStockReserve() {
         return BindingBuilder.bind(queueStockReserve())
                 .to(orderExchange()).with(RK_STOCK_RESERVE);
+    }
+
+    @Bean
+    public Binding bindingStockFailed() {
+        return BindingBuilder.bind(queueStockFailed())
+                .to(orderExchange()).with(RK_STOCK_FAILED);
+    }
+
+    @Bean
+    public Binding bindingOrderCancel() {
+        return BindingBuilder.bind(queueOrderCancel())
+                .to(orderExchange()).with(RK_ORDER_CANCEL);
     }
 
 

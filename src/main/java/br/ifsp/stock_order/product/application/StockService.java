@@ -1,5 +1,6 @@
 package br.ifsp.stock_order.product.application;
 
+import br.ifsp.stock_order.common.events.OrderCreatedEvent;
 import br.ifsp.stock_order.product.api.dto.CreateStockRequest;
 import br.ifsp.stock_order.product.api.dto.StockResponse;
 import br.ifsp.stock_order.product.infrastructure.ProductEntity;
@@ -10,8 +11,10 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class StockService {
@@ -58,5 +61,21 @@ public class StockService {
                 stock.getQuantity(),
                 stock.getUpdatedAt()
         );
+    }
+
+    public void reserveStock(UUID orderId, List<OrderCreatedEvent.OrderItemData> items) {
+        for (var item : items){
+            StockEntity stock = stockRepository.findByProductId(item.productId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found: " + item.productId()));
+
+            if (stock.getQuantity() < item.quantity()) {
+                throw new IllegalArgumentException("Quantity exceeds stock quantity for " + item.productId());
+            }
+
+            stock.setQuantity(stock.getQuantity() - item.quantity());
+            stock.setUpdatedAt(LocalDateTime.now());
+
+            stockRepository.save(stock);
+        }
     }
 }

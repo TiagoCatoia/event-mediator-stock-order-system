@@ -2,6 +2,7 @@ package br.ifsp.stock_order.mediator;
 
 import br.ifsp.stock_order.common.commands.ReserveStockCommand;
 import br.ifsp.stock_order.common.events.OrderCreatedEvent;
+import br.ifsp.stock_order.common.events.StockReservationFailedEvent;
 import br.ifsp.stock_order.infrastructure.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -29,6 +30,17 @@ public class OrderMediator {
                 RabbitMQConfig.EXCHANGE_ORDER,
                 RabbitMQConfig.RK_STOCK_RESERVE,
                 command
+        );
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_STOCK_FAILED)
+    public void onStockFailed(StockReservationFailedEvent event) {
+        System.out.println("MEDIADOR recebeu o evento de falha no stock: " + event.orderId());
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_ORDER,
+                RabbitMQConfig.RK_ORDER_CANCEL,
+                event
         );
     }
 }
