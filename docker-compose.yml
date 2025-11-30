@@ -24,6 +24,15 @@ services:
     volumes:
       - rabbitmq_:/var/lib/rabbitmq
 
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"  # Porta para acessar o Zipkin
+    environment:
+      - ZIPKIN_HTTP_PORT=9411  # Garantir que o Zipkin irá rodar na porta 9411
+    restart: always
+
 volumes:
   postgres_:
   rabbitmq_:
