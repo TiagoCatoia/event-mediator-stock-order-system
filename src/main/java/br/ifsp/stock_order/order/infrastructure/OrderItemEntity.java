@@ -23,10 +23,10 @@ public class OrderItemEntity {
     private UUID id;
 
     @Column(nullable = false)
-    private OrderStatus status;
+    private Double unitPrice;
 
     @Column(nullable = false)
-    private Double totalPrice;
+    private Integer quantity;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)

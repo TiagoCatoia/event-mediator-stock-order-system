@@ -1,9 +1,29 @@
 package br.ifsp.stock_order.order.api;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import br.ifsp.stock_order.order.api.dto.CreateOrderRequest;
+import br.ifsp.stock_order.order.api.dto.OrderResponse;
+import br.ifsp.stock_order.order.application.OrderService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("orders")
 public class OrderController {
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderResponse>> findAll() {
+        return ResponseEntity.ok(orderService.findOrders());
+    }
+
+    @PostMapping
+    public ResponseEntity<OrderResponse> CreateCustomer(@RequestBody CreateOrderRequest request) {
+        return ResponseEntity.ok(orderService.createOrder(request));
+    }
 }
