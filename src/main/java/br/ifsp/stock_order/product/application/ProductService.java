@@ -8,6 +8,7 @@ import jakarta.persistence.EntityExistsException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -30,8 +31,10 @@ public class ProductService {
     }
 
     public ProductResponse createProduct(CreateProductRequest request) {
-        productRepository.findByName(request.name())
-                .orElseThrow(() -> new EntityExistsException("Product name already exists: " + request.name()));
+        Optional<ProductEntity> existingProduct = productRepository.findByName(request.name());
+        if (existingProduct.isPresent()) {
+            throw new EntityExistsException("Product name already exists: " + request.name());
+        }
 
         ProductEntity product = new ProductEntity(
                 request.name(),
