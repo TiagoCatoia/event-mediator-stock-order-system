@@ -35,4 +35,14 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product")
     private List<OrderItemEntity> orderItem = new ArrayList<>();
+
+    public ProductEntity(String name, Double price, LocalDateTime createdAt) {
+        this.name = name;
+        this.price = price;
+        this.createdAt = createdAt;
+    }
+
+    public ProductEntity(String name, Double price) {
+        this(name, price, LocalDateTime.now());
+    }
 }
