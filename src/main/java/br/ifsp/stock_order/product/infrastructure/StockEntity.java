@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -21,7 +22,7 @@ public class StockEntity {
     @Column(nullable = false)
     private Integer quantity;
 
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @OneToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false, unique = true)
