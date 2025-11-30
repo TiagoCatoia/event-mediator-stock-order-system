@@ -29,4 +29,6 @@ public class StockController {
     public ResponseEntity<StockResponse> createStock(@RequestBody @Valid CreateStockRequest request) {
         return ResponseEntity.ok(stockService.createStock(request));
     }
+
+
 }
