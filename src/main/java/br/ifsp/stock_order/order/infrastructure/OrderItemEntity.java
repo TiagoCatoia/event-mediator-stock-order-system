@@ -28,6 +28,9 @@ public class OrderItemEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column(nullable = false)
+    private OrderStatus orderStatus;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
