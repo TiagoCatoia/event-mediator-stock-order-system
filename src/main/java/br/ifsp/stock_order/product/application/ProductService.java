@@ -24,7 +24,8 @@ public class ProductService {
                 new ProductResponse(
                         c.getId(),
                         c.getName(),
-                        c.getPrice()
+                        c.getPrice(),
+                        c.getCreatedAt()
                 )).toList();
     }
 
@@ -41,7 +42,8 @@ public class ProductService {
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
-                product.getPrice()
+                product.getPrice(),
+                product.getCreatedAt()
         );
     }
 }
