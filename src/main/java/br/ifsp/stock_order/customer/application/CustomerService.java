@@ -4,6 +4,7 @@ import br.ifsp.stock_order.customer.api.dto.CreateCustomerRequest;
 import br.ifsp.stock_order.customer.api.dto.CustomerResponse;
 import br.ifsp.stock_order.customer.infrastructure.CustomerEntity;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
+import jakarta.persistence.EntityExistsException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class CustomerService {
     }
 
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
+        customerRepository.findByEmail(request.email())
+                .orElseThrow(() -> new EntityExistsException("Customer email already in use: " + request.email()));
+
         CustomerEntity customer = new CustomerEntity(request.name(), request.email());
 
         customerRepository.save(customer);

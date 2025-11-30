@@ -4,6 +4,7 @@ import br.ifsp.stock_order.product.api.dto.CreateProductRequest;
 import br.ifsp.stock_order.product.api.dto.ProductResponse;
 import br.ifsp.stock_order.product.infrastructure.ProductEntity;
 import br.ifsp.stock_order.product.infrastructure.ProductRepository;
+import jakarta.persistence.EntityExistsException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class ProductService {
     }
 
     public ProductResponse createProduct(CreateProductRequest request) {
+        productRepository.findByName(request.name())
+                .orElseThrow(() -> new EntityExistsException("Product name already exists: " + request.name()));
+
         ProductEntity product = new ProductEntity(
                 request.name(),
                 request.price()
