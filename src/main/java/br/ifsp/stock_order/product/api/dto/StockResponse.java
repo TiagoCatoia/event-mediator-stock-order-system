@@ -6,6 +6,7 @@ import java.util.UUID;
 public record StockResponse(
         UUID id,
         UUID productId,
+        String productName,
         Integer quantity,
         LocalDateTime updatedAt
 ) {

@@ -21,6 +21,7 @@ public class StockService {
         return stocks.stream().map(s -> new StockResponse(
                 s.getId(),
                 s.getProduct().getId(),
+                s.getProduct().getName(),
                 s.getQuantity(),
                 s.getUpdatedAt()
         )).toList();
