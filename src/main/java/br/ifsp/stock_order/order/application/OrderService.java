@@ -2,7 +2,7 @@ package br.ifsp.stock_order.order.application;
 
 import br.ifsp.stock_order.common.event.OrderCreatedEvent;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
-import br.ifsp.stock_order.infrastructure.RabbitMQConfig;
+import br.ifsp.stock_order.common.config.RabbitMQConfig;
 import br.ifsp.stock_order.order.api.dto.CreateOrderRequest;
 import br.ifsp.stock_order.order.api.dto.OrderItemResponse;
 import br.ifsp.stock_order.order.api.dto.OrderResponse;
