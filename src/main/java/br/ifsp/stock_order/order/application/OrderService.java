@@ -1,5 +1,6 @@
 package br.ifsp.stock_order.order.application;
 
+import br.ifsp.stock_order.common.command.CancelOrderCommand;
 import br.ifsp.stock_order.common.event.OrderCreatedEvent;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
 import br.ifsp.stock_order.common.config.RabbitMQConfig;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +42,14 @@ public class OrderService {
 
         return orders.stream().map(this::toOrderResponse)
                 .collect(Collectors.toList());
+    }
+
+    public void cancelOrder(UUID orderId) {
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
     }
 
     @Transactional

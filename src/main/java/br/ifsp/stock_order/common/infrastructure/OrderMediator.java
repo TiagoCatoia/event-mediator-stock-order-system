@@ -1,5 +1,6 @@
 package br.ifsp.stock_order.common.infrastructure;
 
+import br.ifsp.stock_order.common.command.CancelOrderCommand;
 import br.ifsp.stock_order.common.command.ReserveStockCommand;
 import br.ifsp.stock_order.common.event.OrderCreatedEvent;
 import br.ifsp.stock_order.common.event.StockReservationFailedEvent;
@@ -37,10 +38,15 @@ public class OrderMediator {
     public void onStockFailed(StockReservationFailedEvent event) {
         System.out.println("MEDIADOR recebeu o evento de falha no stock: " + event.orderId());
 
+        CancelOrderCommand command = new CancelOrderCommand(
+                event.orderId(),
+                event.message()
+        );
+
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE_ORDER,
                 RabbitMQConfig.RK_ORDER_CANCEL,
-                event
+                command
         );
     }
 }
