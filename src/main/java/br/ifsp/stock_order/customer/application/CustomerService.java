@@ -2,6 +2,7 @@ package br.ifsp.stock_order.customer.application;
 
 import br.ifsp.stock_order.customer.api.dto.CreateCustomerRequest;
 import br.ifsp.stock_order.customer.api.dto.CustomerResponse;
+import br.ifsp.stock_order.customer.domain.Customer;
 import br.ifsp.stock_order.customer.infrastructure.CustomerEntity;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
 import jakarta.persistence.EntityExistsException;
@@ -29,8 +30,9 @@ public class CustomerService {
     }
 
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
-        customerRepository.findByEmail(request.email())
-                .orElseThrow(() -> new EntityExistsException("Customer email already in use: " + request.email()));
+        boolean customerExists = customerRepository.findByEmail(request.email()).isPresent();
+        if (customerExists)
+            throw new EntityExistsException("Customer email already in use: " + request.email());
 
         CustomerEntity customer = new CustomerEntity(request.name(), request.email());
 
