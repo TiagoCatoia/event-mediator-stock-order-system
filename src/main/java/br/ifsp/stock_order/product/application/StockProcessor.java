@@ -1,7 +1,7 @@
 package br.ifsp.stock_order.product.application;
 
-import br.ifsp.stock_order.common.commands.ReserveStockCommand;
-import br.ifsp.stock_order.common.events.StockReservationFailedEvent;
+import br.ifsp.stock_order.common.command.ReserveStockCommand;
+import br.ifsp.stock_order.common.event.StockReservationFailedEvent;
 import br.ifsp.stock_order.infrastructure.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

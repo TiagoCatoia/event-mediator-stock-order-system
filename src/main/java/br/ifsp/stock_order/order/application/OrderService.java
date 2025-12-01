@@ -1,6 +1,6 @@
 package br.ifsp.stock_order.order.application;
 
-import br.ifsp.stock_order.common.events.OrderCreatedEvent;
+import br.ifsp.stock_order.common.event.OrderCreatedEvent;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
 import br.ifsp.stock_order.infrastructure.RabbitMQConfig;
 import br.ifsp.stock_order.order.api.dto.CreateOrderRequest;

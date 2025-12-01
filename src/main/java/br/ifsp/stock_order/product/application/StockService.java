@@ -1,6 +1,6 @@
 package br.ifsp.stock_order.product.application;
 
-import br.ifsp.stock_order.common.events.OrderCreatedEvent;
+import br.ifsp.stock_order.common.event.OrderCreatedEvent;
 import br.ifsp.stock_order.product.api.dto.CreateStockRequest;
 import br.ifsp.stock_order.product.api.dto.StockResponse;
 import br.ifsp.stock_order.product.infrastructure.ProductEntity;
