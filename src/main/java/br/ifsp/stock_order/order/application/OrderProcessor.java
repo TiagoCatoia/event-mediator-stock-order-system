@@ -3,6 +3,7 @@ package br.ifsp.stock_order.order.application;
 import br.ifsp.stock_order.common.command.CancelOrderCommand;
 import br.ifsp.stock_order.common.config.RabbitMQConfig;
 import br.ifsp.stock_order.common.event.OrderCancelFailedEvent;
+import br.ifsp.stock_order.common.infrastructure.EmailService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -15,6 +16,7 @@ public class OrderProcessor {
 
     private final OrderService orderService;
     private final RabbitTemplate rabbitTemplate;
+    private final EmailService emailService;
 
     @CircuitBreaker(name = "orderCancelCircuitBreaker", fallbackMethod = "fallbackCancelOrder")
     @RabbitListener(queues = RabbitMQConfig.QUEUE_ORDER_CANCEL)
@@ -47,6 +49,6 @@ public class OrderProcessor {
     }
 
     private void sendEmailAlert(String subject, String body) {
-        //
+        emailService.sendSimpleEmail("user@gmail.com", subject, body);
     }
 }
