@@ -45,11 +45,12 @@ public class OrderService {
     }
 
     public void cancelOrder(UUID orderId) {
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
-
-        order.setStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
+        throw new RuntimeException("Simulando falha no cancelamento do pedido");
+//        OrderEntity order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
+//
+//        order.setStatus(OrderStatus.CANCELLED);
+//        orderRepository.save(order);
     }
 
     @Transactional
