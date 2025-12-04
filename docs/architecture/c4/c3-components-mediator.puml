@@ -1,23 +1,18 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-System_Boundary(mediatorBoundary, "Event Mediator Module") {
-
-    Component(eventPublisher, "EventPublisher", "Spring ApplicationEventPublisher","Responsável por publicar eventos de domínio disparados pelos módulos.")
-
-    Component(eventBus, "EventBus", "Spring Event Dispatcher","Mecanismo interno que distribui eventos para os ouvintes registrados.")
-
-    Component(orderListener, "OrderEventListener", "Event Listener","Escuta eventos relacionados a pedidos e executa a lógica apropriada.")
-
-    Component(stockListener, "StockEventListener", "Event Listener","Escuta eventos relacionados ao estoque e atualiza quantidades ou reservas.")
-
-    Component(trackingListener, "TrackingEventListener", "Event Listener","Escuta eventos de pedido e estoque para atualizar o fluxo de rastreamento.")
+Container_Boundary(mediatorBoundary, "Módulo Mediador") {
+    Component(mediator, "OrderMediator", "Component", "Orquestra o fluxo do pedido baseada em eventos.")
 }
 
-Rel(eventPublisher, eventBus, "Publica eventos para")
-Rel(eventBus, orderListener, "Distribui eventos para")
-Rel(eventBus, stockListener, "Distribui eventos para")
-Rel(eventBus, trackingListener, "Distribui eventos para")
+ContainerQueue(rabbitmq, "RabbitMQ")
 
-SHOW_LEGEND()
+' Fluxo de Sucesso
+Rel(rabbitmq, mediator, "Lê OrderCreatedEvent", "q.order-created")
+Rel(mediator, rabbitmq, "Envia ReserveStockCommand", "ex.order -> stock.reserve")
+
+' Fluxo de Falha
+Rel(rabbitmq, mediator, "Lê StockReservationFailedEvent", "q.stock-failed")
+Rel(mediator, rabbitmq, "Envia CancelOrderCommand", "ex.order -> order.cancel")
+
 @enduml
