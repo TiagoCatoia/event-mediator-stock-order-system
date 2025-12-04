@@ -1,0 +1,23 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(orderBoundary, "Módulo de Pedidos") {
+    Component(controller, "OrderController", "REST Controller", "Recebe POST /orders.")
+    Component(service, "OrderService", "Service", "Salva pedido (CREATED), valida cliente e publica evento inicial.")
+    Component(repo, "OrderRepository", "JPA Repository", "Acesso ao PostgreSQL.")
+
+    Component(processor, "OrderProcessor", "RabbitListener", "Escuta comandos de cancelamento. Possui Circuit Breaker.")
+    Component(emailService, "EmailService", "Service", "Envia notificação em caso de falha persistente.")
+}
+
+ContainerQueue(rabbitmq, "RabbitMQ")
+
+Rel(controller, service, "Chama")
+Rel(service, repo, "Persiste Pedido")
+Rel(service, rabbitmq, "Publica OrderCreatedEvent", "RabbitTemplate")
+
+Rel(rabbitmq, processor, "Consome CancelOrderCommand", "AMQP")
+Rel(processor, service, "Executa cancelOrder()")
+Rel(processor, emailService, "Fallback (Circuit Breaker Aberto/Erro)")
+
+@enduml

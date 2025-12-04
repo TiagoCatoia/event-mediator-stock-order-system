@@ -3,12 +3,14 @@
 SHOW_PERSON_OUTLINE()
 
 Person(usuario, "Operador", "Registra pedidos e controla estoque.")
-Person(admin, "Administrador", "Gerencia configurações e supervisiona o sistema.")
 
-System(sistema, "Sistema de Pedidos e Controle de Estoque", 
-       "Aplicação acadêmica para registrar pedidos, controlar estoque e rastrear o fluxo.")
+System(sistema, "Sistema de Pedidos e Controle de Estoque", "API Spring Boot para registrar pedidos, controlar estoque e rastrear fluxo.")
 
-Rel(usuario, sistema, "Utiliza para registrar e acompanhar pedidos.")
-Rel(admin, sistema, "Administra e supervisiona o sistema.")
+System_Ext(emailSystem, "Sistema de E-mail", "Servidor SMTP (ex: Mailtrap) para notificações de falha.")
+System_Ext(zipkin, "Zipkin", "Sistema de Distributed Tracing para observabilidade.")
+
+Rel(usuario, sistema, "Utiliza para registrar e acompanhar pedidos")
+Rel(sistema, emailSystem, "Envia alertas de falha (Circuit Breaker)")
+Rel(sistema, zipkin, "Envia métricas de tracing")
 
 @enduml

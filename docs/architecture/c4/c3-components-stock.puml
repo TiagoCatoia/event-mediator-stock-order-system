@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(stockBoundary, "Módulo de Estoque") {
+    Component(controller, "StockController", "REST Controller", "Gerencia cadastro de estoque via API.")
+    Component(service, "StockService", "Service", "Valida disponibilidade e baixa quantidade.")
+    Component(repo, "StockRepository", "JPA Repository", "Acesso ao PostgreSQL.")
+    
+    Component(processor, "StockProcessor", "RabbitListener", "Escuta comandos de reserva vindos do Mediador.")
+}
+
+ContainerQueue(rabbitmq, "RabbitMQ")
+
+Rel(controller, service, "Chama")
+Rel(service, repo, "Atualiza Estoque")
+
+Rel(rabbitmq, processor, "Consome ReserveStockCommand", "AMQP")
+Rel(processor, service, "Chama reserveStock()")
+Rel(processor, rabbitmq, "Publica StockReservationFailedEvent (em caso de erro)", "RabbitTemplate")
+
+@enduml
