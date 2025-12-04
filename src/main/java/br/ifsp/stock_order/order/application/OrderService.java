@@ -1,9 +1,8 @@
 package br.ifsp.stock_order.order.application;
 
-import br.ifsp.stock_order.common.command.CancelOrderCommand;
+import br.ifsp.stock_order.common.config.RabbitMQConfig;
 import br.ifsp.stock_order.common.event.OrderCreatedEvent;
 import br.ifsp.stock_order.customer.infrastructure.CustomerRepository;
-import br.ifsp.stock_order.common.config.RabbitMQConfig;
 import br.ifsp.stock_order.order.api.dto.CreateOrderRequest;
 import br.ifsp.stock_order.order.api.dto.OrderItemResponse;
 import br.ifsp.stock_order.order.api.dto.OrderResponse;
@@ -12,6 +11,7 @@ import br.ifsp.stock_order.order.infrastructure.OrderEntity;
 import br.ifsp.stock_order.order.infrastructure.OrderItemEntity;
 import br.ifsp.stock_order.order.infrastructure.OrderRepository;
 import br.ifsp.stock_order.product.infrastructure.ProductRepository;
+import io.micrometer.tracing.Tracer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -29,12 +29,19 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final Tracer tracer;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, RabbitTemplate rabbitTemplate) {
+    public OrderService(
+            OrderRepository orderRepository,
+            CustomerRepository customerRepository,
+            ProductRepository productRepository,
+            RabbitTemplate rabbitTemplate,
+            Tracer tracer) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.tracer = tracer;
     }
 
     public List<OrderResponse> findOrders(){
@@ -46,72 +53,109 @@ public class OrderService {
 
     public void cancelOrder(UUID orderId) {
         throw new RuntimeException("Simulando falha no cancelamento do pedido");
-//        OrderEntity order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
+//        var cancelOrderSpan = tracer.nextSpan().name("cancelOrder").start();
 //
-//        order.setStatus(OrderStatus.CANCELLED);
-//        orderRepository.save(order);
+//        try {
+//            cancelOrderSpan.tag("orderId", orderId.toString());
+//
+//            OrderEntity order = orderRepository.findById(orderId)
+//                    .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
+//
+//            order.setStatus(OrderStatus.CANCELLED);
+//
+//            orderRepository.save(order);
+//
+//            cancelOrderSpan.tag("status", order.getStatus().toString());
+//
+//
+//        } catch (Exception exception) {
+//            cancelOrderSpan.error(exception);
+//            throw exception;
+//        } finally {
+//            cancelOrderSpan.end();
+//        }
     }
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
-        var customer = customerRepository.findById(request.customerId())
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found: " + request.customerId()));
+        var createOrderSpan = tracer.nextSpan().name("createOrder").start();
 
-        var order = new OrderEntity();
-        order.setCustomer(customer);
-        order.setStatus(OrderStatus.CREATED);
-        order.setCreatedAt(LocalDateTime.now());
-        order.setOrderItems(new ArrayList<>());
+        try {
+            var customer = customerRepository.findById(request.customerId())
+                    .orElseThrow(() -> new EntityNotFoundException("Customer not found: " + request.customerId()));
 
-        double totalOrderPrice = 0.0;
+            var order = new OrderEntity();
+            order.setCustomer(customer);
+            order.setStatus(OrderStatus.CREATED);
+            order.setCreatedAt(LocalDateTime.now());
+            order.setOrderItems(new ArrayList<>());
 
-        for (var itemRequest : request.items()) {
-            var product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found: " + itemRequest.productId()));
+            double totalOrderPrice = 0.0;
 
-            double itemTotal = product.getPrice() * itemRequest.quantity();
+            for (var itemRequest : request.items()) {
+                var product = productRepository.findById(itemRequest.productId())
+                        .orElseThrow(() -> new EntityNotFoundException("Product not found: " + itemRequest.productId()));
 
-            var orderItem = new OrderItemEntity();
-            orderItem.setOrder(order);
-            orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.quantity());
-            orderItem.setUnitPrice(itemTotal);
-            orderItem.setOrderStatus(OrderStatus.CREATED);
+                double itemTotal = product.getPrice() * itemRequest.quantity();
 
-            order.getOrderItems().add(orderItem);
-            totalOrderPrice += itemTotal;
+                var orderItem = new OrderItemEntity();
+                orderItem.setOrder(order);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(itemRequest.quantity());
+                orderItem.setUnitPrice(itemTotal);
+                orderItem.setOrderStatus(OrderStatus.CREATED);
+
+                order.getOrderItems().add(orderItem);
+                totalOrderPrice += itemTotal;
+            }
+
+            order.setTotalPrice(totalOrderPrice);
+            OrderEntity savedOrder = orderRepository.save(order);
+
+            publishOrderCreatedEvent(savedOrder);
+
+            return toOrderResponse(savedOrder);
+        } catch (Exception exception) {
+            createOrderSpan.error(exception);
+            throw exception;
+        } finally {
+            createOrderSpan.end();
         }
-
-        order.setTotalPrice(totalOrderPrice);
-        OrderEntity savedOrder = orderRepository.save(order);
-
-        publishOrderCreatedEvent(savedOrder);
-
-        return toOrderResponse(savedOrder);
     }
 
     private void publishOrderCreatedEvent(OrderEntity savedOrder) {
-        List<OrderCreatedEvent.OrderItemData> itemsData = savedOrder.getOrderItems().stream()
-                .map(item -> new OrderCreatedEvent.OrderItemData(
-                        item.getProduct().getId(),
-                        item.getQuantity()
-                )).toList();
+        var publishEventSpan = tracer.nextSpan().name("publishOrderEvent").start();
 
-        OrderCreatedEvent event = new OrderCreatedEvent(
-                savedOrder.getId(),
-                savedOrder.getCustomer().getId(),
-                savedOrder.getTotalPrice(),
-                savedOrder.getStatus().toString(),
-                savedOrder.getCreatedAt(),
-                itemsData
-        );
+        try {
+            List<OrderCreatedEvent.OrderItemData> itemsData = savedOrder.getOrderItems().stream()
+                    .map(item -> new OrderCreatedEvent.OrderItemData(
+                            item.getProduct().getId(),
+                            item.getQuantity()
+                    )).toList();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE_ORDER,
-                RabbitMQConfig.RK_ORDER_CREATED,
-                event
-        );
+            OrderCreatedEvent event = new OrderCreatedEvent(
+                    savedOrder.getId(),
+                    savedOrder.getCustomer().getId(),
+                    savedOrder.getTotalPrice(),
+                    savedOrder.getStatus().toString(),
+                    savedOrder.getCreatedAt(),
+                    itemsData
+            );
+
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EXCHANGE_ORDER,
+                    RabbitMQConfig.RK_ORDER_CREATED,
+                    event
+            );
+
+            publishEventSpan.tag("queue", RabbitMQConfig.EXCHANGE_ORDER);
+            publishEventSpan.tag("routingKey", RabbitMQConfig.RK_ORDER_CREATED);
+        } catch (Exception exception) {
+            publishEventSpan.error(exception);
+            throw exception;
+        } finally {
+            publishEventSpan.end();
+        }
     }
 
     private OrderResponse toOrderResponse(OrderEntity entity) {

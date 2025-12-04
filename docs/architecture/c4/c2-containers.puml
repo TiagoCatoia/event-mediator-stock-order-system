@@ -1,0 +1,27 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(usuario, "Usuário Interno", "Operador administrativo.")
+
+System_Boundary(c1, "Sistema de Pedidos e Controle de Estoque") {
+
+    Container(api, "API Spring Boot", "Java 24", "Contém os módulos de Pedido, Estoque, Cliente, Produto e Mediador.")
+
+    ContainerDb(db, "Banco de Dados", "PostgreSQL", "Armazena tabelas de pedidos, itens, clientes, produtos e estoque.")
+
+    ContainerQueue(rabbitmq, "Message Broker", "RabbitMQ", "Gerencia filas de eventos (OrderCreated, StockFailed) e comandos (ReserveStock, CancelOrder).")
+
+    Container(zipkin, "Zipkin Server", "Docker", "Coleta e visualiza logs de tracing distribuído.")
+}
+
+System_Ext(email, "SMTP Server", "Mailtrap")
+
+Rel(usuario, api, "Envia requisições HTTP", "JSON")
+
+' Relações da API
+Rel(api, db, "Lê e Escreve", "JPA/Hibernate")
+Rel(api, rabbitmq, "Publica e Consome Mensagens", "AMQP/JSON")
+Rel(api, zipkin, "Envia Traces", "HTTP")
+Rel(api, email, "Envia E-mails de Fallback", "SMTP")
+
+@enduml
