@@ -30,7 +30,7 @@ public class OrderProcessor {
         var emailSpan = tracer.nextSpan().name("sendEmail").start();
         try {
             String subject = "Falha persistente ao cancelar pedido " + command.orderId();
-            String body = "O sistema de cancelamento está indisponível. Circuito aberto.";
+            String body = "O sistema de cancelamento está indisponível.";
             emailService.sendSimpleEmail("user@gmail.com", subject, body);
 
             emailSpan.tag("subject", subject);
