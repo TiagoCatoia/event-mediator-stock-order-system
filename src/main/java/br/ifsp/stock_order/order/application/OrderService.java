@@ -178,7 +178,8 @@ public class OrderService {
         return new OrderItemResponse(
                 entity.getId(),
                 entity.getUnitPrice(),
-                entity.getProduct().getId()
+                entity.getProduct().getId(),
+                entity.getQuantity()
         );
     }
 }
