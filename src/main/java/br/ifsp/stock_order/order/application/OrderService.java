@@ -52,10 +52,10 @@ public class OrderService {
     }
 
     public void cancelOrder(UUID orderId) {
-        throw new RuntimeException("Simulando falha no cancelamento do pedido");
-//        var cancelOrderSpan = tracer.nextSpan().name("cancelOrder").start();
-//
-//        try {
+        var cancelOrderSpan = tracer.nextSpan().name("cancelOrder").start();
+
+        try {
+            throw new RuntimeException("Simulando falha no cancelamento do pedido");
 //            cancelOrderSpan.tag("orderId", orderId.toString());
 //
 //            OrderEntity order = orderRepository.findById(orderId)
@@ -66,14 +66,12 @@ public class OrderService {
 //            orderRepository.save(order);
 //
 //            cancelOrderSpan.tag("status", order.getStatus().toString());
-//
-//
-//        } catch (Exception exception) {
-//            cancelOrderSpan.error(exception);
-//            throw exception;
-//        } finally {
-//            cancelOrderSpan.end();
-//        }
+        } catch (Exception exception) {
+            cancelOrderSpan.error(exception);
+            throw exception;
+        } finally {
+            cancelOrderSpan.end();
+        }
     }
 
     @Transactional
