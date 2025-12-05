@@ -9,7 +9,7 @@ System_Boundary(c1, "Sistema de Pedidos e Controle de Estoque") {
 
     ContainerDb(db, "Banco de Dados", "PostgreSQL", "Armazena tabelas de pedidos, itens, clientes, produtos e estoque.")
 
-    ContainerQueue(rabbitmq, "Message Broker", "RabbitMQ", "Gerencia filas de eventos (OrderCreated, StockFailed) e comandos (ReserveStock, CancelOrder).")
+    ContainerQueue(rabbitmq, "Message", "RabbitMQ", "Gerencia filas de eventos (OrderCreated, StockFailed) e comandos (ReserveStock, CancelOrder).")
 
     Container(zipkin, "Zipkin Server", "Docker", "Coleta e visualiza logs de tracing distribuído.")
 }
