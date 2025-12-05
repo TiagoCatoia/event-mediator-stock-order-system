@@ -12,8 +12,7 @@ possibilitar monitoramento completo do fluxo da aplicação por meio de observab
 o sistema deve permitir evolução simples, separação clara de responsabilidades e facilidade para estender funcionalidades conforme o projeto cresce.
 
 ## Decisão:
-A decisão é adotar uma Arquitetura Baseada em Eventos (Event-Driven Architecture) utilizando um mediador interno fornecido pelo Spring 
-por meio de Application Events e Domain Events. O projeto também utilizará Circuit Breaking com Resilience4j para garantir proteção contra 
+A decisão é adotar uma Arquitetura Baseada em Eventos (Event-Driven Architecture) utilizando um mediador. O projeto também utilizará Circuit Breaking com Resilience4j para garantir proteção contra 
 falhas em componentes internos que executam tarefas potencialmente demoradas, além de Observabilidade com Micrometer e Zipkin para 
 logs estruturados e tracing distribuído.
 
